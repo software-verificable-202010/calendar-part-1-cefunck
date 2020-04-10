@@ -6,6 +6,12 @@
              xmlns:local="clr-namespace:Calendar"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -24,5 +30,12 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0">Monday</TextBlock>
+        <TextBlock Grid.Column="1" Grid.Row="0">Tuesday</TextBlock>
+        <TextBlock Grid.Column="2" Grid.Row="0">Wednesday</TextBlock>
+        <TextBlock Grid.Column="3" Grid.Row="0">Thursday</TextBlock>
+        <TextBlock Grid.Column="4" Grid.Row="0">Friday</TextBlock>
+        <TextBlock Grid.Column="5" Grid.Row="0">Saturday</TextBlock>
+        <TextBlock Grid.Column="6" Grid.Row="0">Sunday</TextBlock>
     </Grid>
 </UserControl>
