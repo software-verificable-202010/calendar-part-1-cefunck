@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Calendar
 {
     /// <summary>
-    /// Lógica de interacción para DayName.xaml
+    /// Lógica de interacción para Body.xaml
     /// </summary>
-    public partial class DayName : UserControl
+    public partial class Body : UserControl
     {
-        public DayName()
+        public Body()
         {
             InitializeComponent();
         }

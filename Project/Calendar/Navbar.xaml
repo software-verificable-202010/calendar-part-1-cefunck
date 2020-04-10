@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Calendar.Layout"
+﻿<UserControl x:Class="Calendar.Navbar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,14 +9,13 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.25*"></RowDefinition>
-            <RowDefinition></RowDefinition>
-        </Grid.RowDefinitions>
-        <local:Navbar Grid.Column="0" Grid.Row="0"></local:Navbar>
-        <local:Body Grid.Column="0" Grid.Row="1"></local:Body>
+        <Button Grid.Column="0" FontFamily="Marlett" FontSize="20" Content="3"/>
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">month of year</TextBlock>
+        <Button Grid.Column="4" FontFamily="Marlett" FontSize="20" Content="4"/>
     </Grid>
-
-    
 </UserControl>
