@@ -23,10 +23,11 @@ namespace Calendar
         private string dayElementNamePrefix = "dayElement";
         private string dayResourceKeyPrefix = "dayResource";
         private const int NumberOfWeekDays = 7;
+        private const int iterationOffSetInLoopFor = 1;
         private const int RowOffsetInGrid = 1;
         private const int ColumnOffsetInGrid = 1;
         private const int numberOfFirstDayInMonth = 1;
-        private const int NumberOfCellsInGrid = 35;
+        private const int NumberOfCellsInGrid = 42;
         private DateTime displayedDate = (DateTime)App.Current.Resources["displayedDate"];
 
         public Body()
@@ -40,14 +41,14 @@ namespace Calendar
 
         private void FillCellsWithDayElements()
         {
-            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
                 string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
                 string dayElementName = dayElementNamePrefix + i.ToString();
                 TextBlock dayElement = new TextBlock();
-                dayElement.Text = FindResource(dynamicResourceName).ToString();
+                dayElement.SetResourceReference(TextBlock.TextProperty, dynamicResourceName);
                 dayElement.Name = dayElementName;
-                Point gridCoordinates = GridCoordinates(i, displayedDate);
+                Point gridCoordinates = GridCoordinates(i);
                 dayElement.SetValue(Grid.ColumnProperty, (int)gridCoordinates.X);
                 dayElement.SetValue(Grid.RowProperty, (int)gridCoordinates.Y);
                 BodyGrid.Children.Add(dayElement);
@@ -56,37 +57,44 @@ namespace Calendar
 
         private void GenerateResourcesForDayElements()
         {
-            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
                 string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
                 string resourceKey = dynamicResourceName;
                 string resourceValue = "";
-                this.Resources.Add(resourceKey, resourceValue);
+                App.Current.Resources.Add(resourceKey, resourceValue);
             }
         }
 
         private void AssignValueToResources()
         {
-            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            DateTime firstDateOfMonth = new DateTime(displayedDate.Year, displayedDate.Month, 1);
+            int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
+            int firstDayGridColumnNumber = (int)(firstDateOfMonth.DayOfWeek) - 1;
+            int lastDayGridColumnNumber = (int)firstDateOfMonth.AddDays(numberOfDaysOfDisplayedMonth).DayOfWeek;
+
+            for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
+
                 string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
-                int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
                 string resourceKey = dynamicResourceName;
-                int resourceValue = i;
-                if (resourceValue > numberOfDaysOfDisplayedMonth)
+                string resourceValue = "";
+                Point gridCoordinates = GridCoordinates(i);
+                bool a = gridCoordinates.Y == 1 && gridCoordinates.X + ColumnOffsetInGrid > firstDayGridColumnNumber;
+                bool b = gridCoordinates.Y > 1 && gridCoordinates.Y < 5;
+                bool c = gridCoordinates.Y == 5 && gridCoordinates.X + ColumnOffsetInGrid < lastDayGridColumnNumber;
+                if (a || b || c)
                 {
-                    break;
-                }
-                this.Resources[resourceKey] = resourceValue.ToString();
+                    resourceValue = (i + iterationOffSetInLoopFor - firstDayGridColumnNumber ).ToString();
+                }               
+                App.Current.Resources[resourceKey] = resourceValue;
             }
         }
 
-        private Point GridCoordinates(int iterationIndex, DateTime displayedDate)
+        private Point GridCoordinates(int iterationIndex)
         {
-            DateTime firstDateOfMonth = new DateTime(displayedDate.Year, displayedDate.Month, 1);
-            int firstDayGridColumnNumber = (int)(firstDateOfMonth.DayOfWeek) - 1;
-            int gridColumn = (((iterationIndex - RowOffsetInGrid) % NumberOfWeekDays) + firstDayGridColumnNumber) % NumberOfWeekDays;
-            int gridRow = ((((iterationIndex % (NumberOfCellsInGrid - firstDayGridColumnNumber)) + firstDayGridColumnNumber - ColumnOffsetInGrid) / NumberOfWeekDays) + RowOffsetInGrid);
+            int gridColumn = (iterationIndex) % NumberOfWeekDays;
+            int gridRow = (iterationIndex / 7) + RowOffsetInGrid;
             Point gridCoordinates = new Point(gridColumn, gridRow);
             return gridCoordinates;
         }

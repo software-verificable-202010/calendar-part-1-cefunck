@@ -37,6 +37,7 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock Grid.Column="0" Grid.Row="0" Text="{StaticResource firstDayOfWeek}"></TextBlock>
         <TextBlock Grid.Column="1" Grid.Row="0" Text="{StaticResource secondDayOfWeek}"></TextBlock>
