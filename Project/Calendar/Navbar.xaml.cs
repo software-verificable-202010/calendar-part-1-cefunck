@@ -23,6 +23,20 @@ namespace Calendar
         public Navbar()
         {
             InitializeComponent();
+            App.Current.Resources["displayedDate"] = DateTime.Now;
+            this.Resources["monthAndYear"] = ((DateTime)App.Current.Resources["displayedDate"]).ToString("MMMM yyyy");
+        }
+
+        private void PreviousMonth_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.Resources["displayedDate"] = ((DateTime)App.Current.Resources["displayedDate"]).AddMonths(-1);
+            this.Resources["monthAndYear"] = ((DateTime)App.Current.Resources["displayedDate"]).ToString("MMMM yyyy");
+        }
+
+        private void NextMonth_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.Resources["displayedDate"] = ((DateTime)App.Current.Resources["displayedDate"]).AddMonths(1);
+            this.Resources["monthAndYear"] = ((DateTime)App.Current.Resources["displayedDate"]).ToString("MMMM yyyy");
         }
     }
 }

@@ -3,9 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Calendar"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <sys:String x:Key="monthAndYear">month and year</sys:String>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -14,8 +18,8 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" FontFamily="Marlett" FontSize="20" Content="3"/>
-        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">month of year</TextBlock>
-        <Button Grid.Column="4" FontFamily="Marlett" FontSize="20" Content="4"/>
+        <Button Grid.Column="0" FontFamily="Marlett" FontSize="20" Content="3" Click="PreviousMonth_Click"/>
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{DynamicResource monthAndYear}"></TextBlock>
+        <Button Grid.Column="4" FontFamily="Marlett" FontSize="20" Content="4" Click="NextMonth_Click"/>
     </Grid>
 </UserControl>
