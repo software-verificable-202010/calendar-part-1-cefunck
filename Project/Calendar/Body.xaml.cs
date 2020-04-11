@@ -20,9 +20,87 @@ namespace Calendar
     /// </summary>
     public partial class Body : UserControl
     {
+        private string dayElementNamePrefix = "dayElement";
+        private string dayResourceKeyPrefix = "dayResource";
+        private const int NumberOfWeekDays = 7;
+        private const int RowOffsetInGrid = 1;
+        private const int ColumnOffsetInGrid = 1;
+        private const int numberOfFirstDayInMonth = 1;
+        private const int NumberOfCellsInGrid = 35;
+        private DateTime displayedDate = (DateTime)App.Current.Resources["displayedDate"];
+
         public Body()
         {
             InitializeComponent();
+            GenerateResourcesForDayElements();
+            AssignValueToResources();
+            FillCellsWithDayElements();
+            HighLightWeekend();
+        }
+
+        private void FillCellsWithDayElements()
+        {
+            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            {
+                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
+                string dayElementName = dayElementNamePrefix + i.ToString();
+                TextBlock dayElement = new TextBlock();
+                dayElement.Text = FindResource(dynamicResourceName).ToString();
+                dayElement.Name = dayElementName;
+                Point gridCoordinates = GridCoordinates(i, displayedDate);
+                dayElement.SetValue(Grid.ColumnProperty, (int)gridCoordinates.X);
+                dayElement.SetValue(Grid.RowProperty, (int)gridCoordinates.Y);
+                BodyGrid.Children.Add(dayElement);
+            }
+        }
+
+        private void GenerateResourcesForDayElements()
+        {
+            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            {
+                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
+                string resourceKey = dynamicResourceName;
+                string resourceValue = "";
+                this.Resources.Add(resourceKey, resourceValue);
+            }
+        }
+
+        private void AssignValueToResources()
+        {
+            for (int i = 1; i <= NumberOfCellsInGrid; i++)
+            {
+                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
+                int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
+                string resourceKey = dynamicResourceName;
+                int resourceValue = i;
+                if (resourceValue > numberOfDaysOfDisplayedMonth)
+                {
+                    break;
+                }
+                this.Resources[resourceKey] = resourceValue.ToString();
+            }
+        }
+
+        private Point GridCoordinates(int iterationIndex, DateTime displayedDate)
+        {
+            DateTime firstDateOfMonth = new DateTime(displayedDate.Year, displayedDate.Month, 1);
+            int firstDayGridColumnNumber = (int)(firstDateOfMonth.DayOfWeek) - 1;
+            int gridColumn = (((iterationIndex - RowOffsetInGrid) % NumberOfWeekDays) + firstDayGridColumnNumber) % NumberOfWeekDays;
+            int gridRow = ((((iterationIndex % (NumberOfCellsInGrid - firstDayGridColumnNumber)) + firstDayGridColumnNumber - ColumnOffsetInGrid) / NumberOfWeekDays) + RowOffsetInGrid);
+            Point gridCoordinates = new Point(gridColumn, gridRow);
+            return gridCoordinates;
+        }
+
+        private void HighLightWeekend()
+        {
+            foreach (TextBlock dayElement in BodyGrid.Children)
+            {
+                int gridColumn = (int)dayElement.GetValue(Grid.ColumnProperty);
+                if (gridColumn == 5 || gridColumn == 6)
+                {
+                    dayElement.Foreground = Brushes.Red;
+                }
+            }
         }
     }
 }
