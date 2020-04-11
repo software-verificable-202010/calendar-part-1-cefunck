@@ -18,5 +18,4 @@
         <local:Body Grid.Column="0" Grid.Row="1"></local:Body>
     </Grid>
 
-    
 </UserControl>
