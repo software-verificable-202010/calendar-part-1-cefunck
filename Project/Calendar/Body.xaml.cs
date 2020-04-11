@@ -75,18 +75,16 @@ namespace Calendar
 
             for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
-
                 string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
                 string resourceKey = dynamicResourceName;
                 string resourceValue = "";
                 Point gridCoordinates = GridCoordinates(i);
                 bool a = gridCoordinates.Y == 1 && gridCoordinates.X + ColumnOffsetInGrid > firstDayGridColumnNumber;
-                bool b = gridCoordinates.Y > 1 && gridCoordinates.Y < 5;
-                bool c = gridCoordinates.Y == 5 && gridCoordinates.X + ColumnOffsetInGrid < lastDayGridColumnNumber;
-                if (a || b || c)
+                bool b = gridCoordinates.Y > 1 && ((i + iterationOffSetInLoopFor - firstDayGridColumnNumber) <= numberOfDaysOfDisplayedMonth);
+                if (a || b)
                 {
-                    resourceValue = (i + iterationOffSetInLoopFor - firstDayGridColumnNumber ).ToString();
-                }               
+                    resourceValue = (i + iterationOffSetInLoopFor - firstDayGridColumnNumber).ToString();
+                }
                 App.Current.Resources[resourceKey] = resourceValue;
             }
         }
