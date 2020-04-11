@@ -20,93 +20,97 @@ namespace Calendar
     /// </summary>
     public partial class Body : UserControl
     {
-        private string dayElementNamePrefix = "dayElement";
-        private string dayResourceKeyPrefix = "dayResource";
-        private const int NumberOfWeekDays = 7;
-        private const int iterationOffSetInLoopFor = 1;
-        private const int RowOffsetInGrid = 1;
-        private const int ColumnOffsetInGrid = 1;
-        private const int numberOfFirstDayInMonth = 1;
-        private const int NumberOfCellsInGrid = 42;
+        private Brush highlightColor = Brushes.Red;
         private DateTime displayedDate = (DateTime)App.Current.Resources["displayedDate"];
+        private const string DayElementNamePrefix = "dayElement";
+        private const string DayNumberResourceKeyPrefix = "dayResource";
+        private const string DayNumberResourceBlankValue = "";
+        private const int DaysInWeek = 7;
+        private const int IterationIndexOffset = 1;
+        private const int GridRowIndexOffset = 1;
+        private const int GridColumnIndexOffset = 1;
+        private const int FirstDayNumberInMonth = 1;
+        private const int NumberOfCellsInGrid = 42;
+        private const int SaturdayGridColumnIndex = 5;
+        private const int SundayGridColumnIndex = 6;
 
         public Body()
         {
             InitializeComponent();
-            GenerateResourcesForDayElements();
-            AssignValueToResources();
-            FillCellsWithDayElements();
-            HighLightWeekend();
+            GenerateDayNumberResources();
+            AssingValuesToDayNumberResources();
+            CreateAndInsertDayElementsToGrid();
+            HighLightWeekends();
         }
-
-        private void FillCellsWithDayElements()
+       
+        private void GenerateDayNumberResources()
         {
             for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
-                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
-                string dayElementName = dayElementNamePrefix + i.ToString();
-                TextBlock dayElement = new TextBlock();
-                dayElement.SetResourceReference(TextBlock.TextProperty, dynamicResourceName);
-                dayElement.Name = dayElementName;
-                Point gridCoordinates = GridCoordinates(i);
-                dayElement.SetValue(Grid.ColumnProperty, (int)gridCoordinates.X);
-                dayElement.SetValue(Grid.RowProperty, (int)gridCoordinates.Y);
+                string dayNumberResourceKey = DayNumberResourceKeyPrefix + i.ToString();
+                string dayNumberResourceValue = DayNumberResourceBlankValue;
+                App.Current.Resources.Add(dayNumberResourceKey, dayNumberResourceValue);
+            }
+        }
+
+        private void AssingValuesToDayNumberResources()
+        {
+            DateTime firstDayOfDisplayedMonth = new DateTime(displayedDate.Year, displayedDate.Month, FirstDayNumberInMonth);
+            int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
+            int firstDayGridColumnIndex = (int)(firstDayOfDisplayedMonth.DayOfWeek) - GridColumnIndexOffset;
+
+            for (int i = 0; i < NumberOfCellsInGrid; i++)
+            {
+                string dayNumberResourceKey = DayNumberResourceKeyPrefix + i.ToString();
+                string dayNumberResourceValue = DayNumberResourceBlankValue;
+                int candidateDayNumber = i - firstDayGridColumnIndex + IterationIndexOffset;
+                Point dayElementGridCoordinates = GetGridCoordinatesByIterationIndex(i);
+                bool isFirstRow = dayElementGridCoordinates.Y == 1;
+                bool isDisplayableColumnOfFirstRow = dayElementGridCoordinates.X >= firstDayGridColumnIndex;
+                bool isDisplayableDayElementOfFirstRow = isFirstRow && isDisplayableColumnOfFirstRow;
+                bool isNotFirstRow = dayElementGridCoordinates.Y > 1;
+                bool isCandidateDayNumberInDisplayedMonth = candidateDayNumber <= numberOfDaysOfDisplayedMonth;
+                bool isDisplayableDayElementOfRemainsRows = isNotFirstRow && isCandidateDayNumberInDisplayedMonth;
+                if (isDisplayableDayElementOfFirstRow || isDisplayableDayElementOfRemainsRows)
+                {
+                    dayNumberResourceValue = candidateDayNumber.ToString();
+                }
+                App.Current.Resources[dayNumberResourceKey] = dayNumberResourceValue;
+            }
+        }
+
+        private void CreateAndInsertDayElementsToGrid()
+        {
+            for (int i = 0; i < NumberOfCellsInGrid; i++)
+            {
+                TextBlock dayElement = new TextBlock();                
+                dayElement.Name = DayElementNamePrefix + i.ToString();
+                string dayNumberResourceKey = DayNumberResourceKeyPrefix + i.ToString();
+                dayElement.SetResourceReference(TextBlock.TextProperty, dayNumberResourceKey);
+                Point dayElementGridCoordinates = GetGridCoordinatesByIterationIndex(i);
+                dayElement.SetValue(Grid.ColumnProperty, (int)dayElementGridCoordinates.X);
+                dayElement.SetValue(Grid.RowProperty, (int)dayElementGridCoordinates.Y);
                 BodyGrid.Children.Add(dayElement);
             }
         }
 
-        private void GenerateResourcesForDayElements()
-        {
-            for (int i = 0; i < NumberOfCellsInGrid; i++)
-            {
-                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
-                string resourceKey = dynamicResourceName;
-                string resourceValue = "";
-                App.Current.Resources.Add(resourceKey, resourceValue);
-            }
-        }
-
-        private void AssignValueToResources()
-        {
-            DateTime firstDateOfMonth = new DateTime(displayedDate.Year, displayedDate.Month, 1);
-            int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
-            int firstDayGridColumnNumber = (int)(firstDateOfMonth.DayOfWeek) - 1;
-            int lastDayGridColumnNumber = (int)firstDateOfMonth.AddDays(numberOfDaysOfDisplayedMonth).DayOfWeek;
-
-            for (int i = 0; i < NumberOfCellsInGrid; i++)
-            {
-                string dynamicResourceName = dayResourceKeyPrefix + i.ToString();
-                string resourceKey = dynamicResourceName;
-                string resourceValue = "";
-                Point gridCoordinates = GridCoordinates(i);
-                bool a = gridCoordinates.Y == 1 && gridCoordinates.X + ColumnOffsetInGrid > firstDayGridColumnNumber;
-                bool b = gridCoordinates.Y > 1 && ((i + iterationOffSetInLoopFor - firstDayGridColumnNumber) <= numberOfDaysOfDisplayedMonth);
-                if (a || b)
-                {
-                    resourceValue = (i + iterationOffSetInLoopFor - firstDayGridColumnNumber).ToString();
-                }
-                App.Current.Resources[resourceKey] = resourceValue;
-            }
-        }
-
-        private Point GridCoordinates(int iterationIndex)
-        {
-            int gridColumn = (iterationIndex) % NumberOfWeekDays;
-            int gridRow = (iterationIndex / 7) + RowOffsetInGrid;
-            Point gridCoordinates = new Point(gridColumn, gridRow);
-            return gridCoordinates;
-        }
-
-        private void HighLightWeekend()
+        private void HighLightWeekends()
         {
             foreach (TextBlock dayElement in BodyGrid.Children)
             {
-                int gridColumn = (int)dayElement.GetValue(Grid.ColumnProperty);
-                if (gridColumn == 5 || gridColumn == 6)
+                int dayElementGridColumnIndex = (int)dayElement.GetValue(Grid.ColumnProperty);
+                if (dayElementGridColumnIndex == SaturdayGridColumnIndex || dayElementGridColumnIndex == SundayGridColumnIndex)
                 {
-                    dayElement.Foreground = Brushes.Red;
+                    dayElement.Foreground = highlightColor;
                 }
             }
+        }
+
+        private Point GetGridCoordinatesByIterationIndex(int iterationIndex)
+        {
+            int gridColumn = (iterationIndex) % DaysInWeek;
+            int gridRow = (iterationIndex / DaysInWeek) + GridRowIndexOffset;
+            return new Point(gridColumn, gridRow); ;
         }
     }
 }
