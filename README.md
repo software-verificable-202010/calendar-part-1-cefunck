@@ -6,7 +6,7 @@ This is the repository corresponding to the first part of the project of the cou
 
   - It shows a whole selected month.
   - It highlights Saturdays and Sundays with red foreground.
-  - It allows the user to navigate through the months with arrow buttons in navigation bar.
+  - It allows the user to navigate through the months.
   - It displays the current month at start.
 
 
