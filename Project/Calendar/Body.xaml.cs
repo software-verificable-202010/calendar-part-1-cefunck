@@ -20,8 +20,7 @@ namespace Calendar
     /// </summary>
     public partial class Body : UserControl
     {
-        private Brush highlightColor = Brushes.Red;
-        private DateTime displayedDate = (DateTime)App.Current.Resources["displayedDate"];
+        private Brush highlightColor = Brushes.Red;        
         private const string DayElementNamePrefix = "dayElement";
         private const string DayNumberResourceKeyPrefix = "dayResource";
         private const string DayNumberResourceBlankValue = "";
@@ -38,7 +37,7 @@ namespace Calendar
         {
             InitializeComponent();
             GenerateDayNumberResources();
-            AssingValuesToDayNumberResources();
+            AssingValuesToDayNumberResources(GetDisplayedDateResourceValue());
             CreateAndInsertDayElementsToGrid();
             HighLightWeekends();
         }
@@ -53,25 +52,15 @@ namespace Calendar
             }
         }
 
-        private void AssingValuesToDayNumberResources()
+        private void AssingValuesToDayNumberResources(DateTime displayedDate)
         {
-            DateTime firstDayOfDisplayedMonth = new DateTime(displayedDate.Year, displayedDate.Month, FirstDayNumberInMonth);
-            int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
-            int firstDayGridColumnIndex = (int)(firstDayOfDisplayedMonth.DayOfWeek) - GridColumnIndexOffset;
-
             for (int i = 0; i < NumberOfCellsInGrid; i++)
             {
                 string dayNumberResourceKey = DayNumberResourceKeyPrefix + i.ToString();
                 string dayNumberResourceValue = DayNumberResourceBlankValue;
-                int candidateDayNumber = i - firstDayGridColumnIndex + IterationIndexOffset;
+                int candidateDayNumber = i - GetfirstDayGridColumnIndex() + IterationIndexOffset;
                 Point dayElementGridCoordinates = GetGridCoordinatesByIterationIndex(i);
-                bool isFirstRow = dayElementGridCoordinates.Y == 1;
-                bool isDisplayableColumnOfFirstRow = dayElementGridCoordinates.X >= firstDayGridColumnIndex;
-                bool isDisplayableDayElementOfFirstRow = isFirstRow && isDisplayableColumnOfFirstRow;
-                bool isNotFirstRow = dayElementGridCoordinates.Y > 1;
-                bool isCandidateDayNumberInDisplayedMonth = candidateDayNumber <= numberOfDaysOfDisplayedMonth;
-                bool isDisplayableDayElementOfRemainsRows = isNotFirstRow && isCandidateDayNumberInDisplayedMonth;
-                if (isDisplayableDayElementOfFirstRow || isDisplayableDayElementOfRemainsRows)
+                if (IsDayNumberInDisplayedMonth(candidateDayNumber, dayElementGridCoordinates))
                 {
                     dayNumberResourceValue = candidateDayNumber.ToString();
                 }
@@ -104,6 +93,38 @@ namespace Calendar
                     dayElement.Foreground = highlightColor;
                 }
             }
+        }
+
+        private bool IsDayNumberInDisplayedMonth(int candidateDayNumber, Point dayElementGridCoordinates)
+        {
+            DateTime displayedDate = GetDisplayedDateResourceValue();
+            bool isFirstDayRow = dayElementGridCoordinates.Y == 1;
+            bool isNotFirstDayRow = dayElementGridCoordinates.Y > 1;
+            bool isFirstDayColumnOrLater = dayElementGridCoordinates.X >= GetfirstDayGridColumnIndex();
+            bool isDisplayableDayElementOfFirstRow = isFirstDayRow && isFirstDayColumnOrLater;
+            bool isCandidateDayNumberInDisplayedMonth = candidateDayNumber <= GetNumberOfDaysOfMonth(displayedDate);
+            bool isDisplayableDayElementOfRemainsRows = isNotFirstDayRow && isCandidateDayNumberInDisplayedMonth;
+            return (isDisplayableDayElementOfFirstRow || isDisplayableDayElementOfRemainsRows);
+        }
+
+        private int GetNumberOfDaysOfMonth(DateTime date)
+        {
+            DateTime displayedDate = date;
+            int numberOfDaysOfDisplayedMonth = DateTime.DaysInMonth(displayedDate.Year, displayedDate.Month);
+            return numberOfDaysOfDisplayedMonth;
+        }
+
+        private int GetfirstDayGridColumnIndex()
+        {
+            DateTime displayedDate = GetDisplayedDateResourceValue();
+            DateTime firstDayOfDisplayedMonth = new DateTime(displayedDate.Year, displayedDate.Month, FirstDayNumberInMonth);
+            int firstDayGridColumnIndex = (int)(firstDayOfDisplayedMonth.DayOfWeek) - GridColumnIndexOffset;
+            return firstDayGridColumnIndex;
+        }
+
+        private DateTime GetDisplayedDateResourceValue()
+        {
+            return (DateTime)App.Current.Resources["displayedDate"];
         }
 
         private Point GetGridCoordinatesByIterationIndex(int iterationIndex)
